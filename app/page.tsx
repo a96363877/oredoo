@@ -61,7 +61,8 @@ function randstr(prefix:string)
           alt="Smart Pay Promotion"
           width={700}
           height={370}
-          className="w-full h-auto object-cover"
+          style={{borderRadius:50}}
+          className="w-full h-auto object-cover p-4 rounded-lg"
         />
         <div className="absolute top-1/2 right-6 transform -translate-y-1/2 z-20 text-right">
         </div>
