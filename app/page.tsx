@@ -54,7 +54,7 @@ function randstr(prefix:string)
         </button>
       </header>
 
-      <div className="relative w-full bg-blue-600 text-white overflow-hidden">
+      <div className="relative w-full text-white overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-700/50 to-blue-600/30 z-10"></div>
         <img
           src="/zf.png"
