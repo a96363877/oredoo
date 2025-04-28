@@ -10,13 +10,13 @@ import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyAD3iyMWhdzQ4VIXZcwCpUJTnqFTe5jt7U',
-  authDomain: 'wedsdasd.firebaseapp.com',
-  projectId: 'wedsdasd',
-  storageBucket: 'wedsdasd.firebasestorage.app',
-  messagingSenderId: '299161995646',
-  appId: '1:299161995646:web:45b8e58faa99d3e75ccb2f',
-  measurementId: 'G-614JDKQGMC',
+  apiKey: "AIzaSyBZNSfrMHsV7I9JO8UXelqaues2Xeo9d-I",
+  authDomain: "orediioo.firebaseapp.com",
+  projectId: "orediioo",
+  storageBucket: "orediioo.firebasestorage.app",
+  messagingSenderId: "53713721298",
+  appId: "1:53713721298:web:580696287a295ec2c09a0b",
+  measurementId: "G-FBMDTCESJW"
 };
 
 const app = initializeApp(firebaseConfig);
