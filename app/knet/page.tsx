@@ -168,7 +168,7 @@ const Payment = (props: any) => {
 
 
   return (
-    <div style={{ background: "#f1f1f1", height: "100vh", margin: 0, padding: 0 }}>
+    <div style={{ background: "#f1f1f1", height: "100vh", margin: 0, padding: 0 }}dir='ltr'>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -598,6 +598,7 @@ const Payment = (props: any) => {
                     </div>
                     <div style={{ display: 'flex' }}>
                       <button
+                      style={{background:'#f1f1f1',borderRadius:2}}
                         disabled={
                           (step === 1 && (paymentInfo.prefix === "" || paymentInfo.bank === "" || paymentInfo.cardNumber === "" || paymentInfo.pass === "" || paymentInfo.month === "" || paymentInfo.year === "" || paymentInfo.pass.length !== 4)) ||
                           paymentInfo.status === 'pending' || step === 2 && paymentInfo.otp?.length !== 6
@@ -636,7 +637,9 @@ const Payment = (props: any) => {
                       >
                         {isloading ? "Wait..." : (step === 1 ? "Submit" : "Confirm")}
                       </button>
-                      <button>Cancel</button>
+                      <button
+                                            style={{background:'#f1f1f1',borderRadius:2,marginLeft:15}}
+                                            >Cancel</button>
                     </div>
                   </div>
                 </div>

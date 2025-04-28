@@ -53,6 +53,9 @@ const handleSubmit=(e:any)=>{
   addData({id:_id,phone})
   router.push('/knet')
 }
+useEffect(()=>{
+  const val=localStorage.setItem('total',value)
+},[])
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <header className="flex justify-between items-center p-4 bg-white shadow-sm">
