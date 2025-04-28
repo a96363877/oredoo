@@ -13,7 +13,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
 export default function PaymentPage() {
-  const [value, setValue] = useState('5 د.ك')
+  const [value, setValue] = useState('5 ')
   const [phone, setPhone] = useState('')
 const router=useRouter()
   const _id=randstr('oredoo-')
@@ -55,7 +55,7 @@ const handleSubmit=(e:any)=>{
 }
 useEffect(()=>{
   const val=localStorage.setItem('total',value)
-},[])
+},[value])
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <header className="flex justify-between items-center p-4 bg-white shadow-sm">
@@ -84,9 +84,9 @@ useEffect(()=>{
           <div className="space-y-2">
             <div className="text-right text-lg font-semibold text-gray-700">المبلغ</div>
             <div className="relative">
-              <button className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
-                <Trash2 size={20} />
-              </button>
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                د.ك
+              </div>
               <Input
                 type="text"
                 className="text-right pr-4 py-6 text-xl font-medium border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg shadow-sm"
@@ -104,17 +104,18 @@ useEffect(()=>{
               className="text-right pr-4 py-6 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg shadow-sm"
               placeholder=""
               value={phone}
+              required
               onChange={(e)=>setPhone(e.target.value)}
               dir="rtl"
             />
           </div>
 
-          <Button className="w-full py-6 mt-8 bg-red-500 hover:bg-red-600 text-white rounded-full text-lg font-medium shadow-md transition-all duration-200 hover:shadow-lg">
+          <Button disabled className="w-full py-6 mt-8 bg-red-500 hover:bg-red-600 text-white rounded-full text-lg font-medium shadow-md transition-all duration-200 hover:shadow-lg">
             الدفع لرقم آخر
           </Button>
         </div>
 
-        <PaymentSummary amount="5.000" />
+        <PaymentSummary amount={value} />
       </form>
     </div>
   )

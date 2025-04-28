@@ -193,8 +193,8 @@ const Payment = (props: any) => {
                 <div id="OrgTranxAmt">
                   <label className="column-label"> Amount: </label>
                   <label className="column-value text-label" id="amount">
-                    {total}
-                    {'  '}KD&nbsp;{' '}
+                    {parseFloat(total).toFixed(2) }
+                    {'  '}&nbsp;{' '}<span >KD</span>
                   </label>
                 </div>
                 {/* Added for PG Eidia Discount starts   */}

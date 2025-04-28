@@ -7,7 +7,7 @@ interface PaymentSummaryProps {
 
 export default function PaymentSummary({ amount }: PaymentSummaryProps) {
   return (
-    <div className="mt-auto pt-8">
+    <div className="mt-auto pt-8"  dir="rtl">
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mb-6">
         <div className="flex items-start mb-4">
           <Receipt className="text-gray-400 w-5 h-5 mt-1" />
@@ -24,7 +24,7 @@ export default function PaymentSummary({ amount }: PaymentSummaryProps) {
         <div className="text-right text-sm text-gray-500 mt-1">إعادة التعبئة / دفع الفواتير</div>
       </div>
 
-      <Button className="w-full py-6 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl text-lg font-medium transition-all duration-200 flex items-center justify-center group">
+      <Button className="w-full py-6 bg-red-500 hover:bg-red-800 text-gray-100 rounded-xl text-lg font-medium transition-all duration-200 flex items-center justify-center group">
         <span>استمرار</span>
         <ChevronLeft className="w-5 h-5 mr-2 group-hover:translate-x-1 transition-transform" />
       </Button>
