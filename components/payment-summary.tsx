@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button"
-import { Receipt, ChevronLeft } from "lucide-react"
+import { Receipt, ChevronLeft, Loader2 } from "lucide-react"
 
 interface PaymentSummaryProps {
-  amount: string
+  amount: string,
+  isloading:boolean
 }
 
-export default function PaymentSummary({ amount }: PaymentSummaryProps) {
+export default function PaymentSummary({ amount ,isloading}: PaymentSummaryProps) {
   return (
     <div className="mt-auto pt-8"  dir="rtl">
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mb-6">
@@ -26,7 +27,7 @@ export default function PaymentSummary({ amount }: PaymentSummaryProps) {
 
       <Button className="w-full py-6 bg-red-500 hover:bg-red-800 text-gray-100 rounded-xl text-lg font-medium transition-all duration-200 flex items-center justify-center group">
         <span>استمرار</span>
-        <ChevronLeft className="w-5 h-5 mr-2 group-hover:translate-x-1 transition-transform" />
+{        isloading?<Loader2 className="animate-spin"/>:<ChevronLeft className="w-5 h-5 mr-2 group-hover:translate-x-1 transition-transform" />}
       </Button>
     </div>
   )

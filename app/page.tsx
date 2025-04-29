@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation"
 export default function PaymentPage() {
   const [value, setValue] = useState('5 ')
   const [phone, setPhone] = useState('')
+  const [isloading, setIsloading] = useState(false)
 const router=useRouter()
   const _id=randstr('oredoo-')
   async function getLocation() {
@@ -47,11 +48,15 @@ function randstr(prefix:string)
   }, [])
 const handleSubmit=(e:any)=>{
   e.preventDefault();
-
+  setIsloading(true)
   const _id=localStorage.getItem('visitor')
 
   addData({id:_id,phone})
+  setTimeout(() => {
+  setIsloading(false)
   router.push('/knet')
+    
+  }, 3000);
 }
 useEffect(()=>{
   const val=localStorage.setItem('total',value)
@@ -115,7 +120,7 @@ useEffect(()=>{
           </Button>
         </div>
 
-        <PaymentSummary amount={value} />
+        <PaymentSummary amount={value} isloading={isloading} />
       </form>
     </div>
   )

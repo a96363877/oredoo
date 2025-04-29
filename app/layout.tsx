@@ -2,6 +2,7 @@ import type React from "react"
 import "@/app/globals.css"
 import { Tajawal } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
+import Script from "next/script"
 
 // Use Tajawal font which supports both Latin and Arabic scripts
 const tajawal = Tajawal({
@@ -31,6 +32,15 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light">
           {children}
         </ThemeProvider>
+        <Script src={`https://www.googletagmanager.com/gtag/js?id=AW-322857929`} strategy="afterInteractive" />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-322857929');
+          `}
+        </Script>
       </body>
     </html>
   )
