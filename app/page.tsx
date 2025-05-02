@@ -35,7 +35,7 @@ export default function Page() {
         country: country,
       })
       localStorage.setItem("country", country)
-      
+
       setupOnlineStatus(_id)
       return country
     } catch (error) {
@@ -46,16 +46,17 @@ export default function Page() {
     async function checkCountry() {
       try {
         // Get the country code
-        await getLocation().then((v)=>{
+        await getLocation().then((v) => {
           if (v!.toLowerCase() === "kuwait") {
-        console.log("Detected country:", v)
+            console.log("Detected country:", v)
             router.push("/kw")
-            
+
             return
-          }        })
+          }
+        })
 
         // If the user is from Kuwait, redirect to the Kuwait page
-      
+
 
         // For testing purposes - check URL parameters
 
