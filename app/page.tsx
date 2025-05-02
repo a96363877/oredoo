@@ -49,7 +49,7 @@ export default function OoredooPage() {
               والشاملة تغذي الابتكار وتعزز الإبداع وتدفع أعمالنا إلى الأمام. إن التزامنا بالتنوع يتجاوز مجرد الاعتراف؛
               إنها متأصلة في ثقافتنا وممارساتنا
             </p>
-            <Link href="#" className="mt-6">
+            <Link href="https://www.ooredoo.com.kw/" className="mt-6">
               <button className="bg-red-600 text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-red-700 transition-colors">
                 لمعرفة المزيد
               </button>
