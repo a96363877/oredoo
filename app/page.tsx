@@ -48,19 +48,11 @@ export default function Page() {
         // Get the country code
         await getLocation().then((v) => {
           if (v!.toLowerCase() === "kuwait") {
-            console.log("Detected country:", v)
             router.push("/kw")
-
             return
           }
         })
 
-        // If the user is from Kuwait, redirect to the Kuwait page
-
-
-        // For testing purposes - check URL parameters
-
-        // Country detection complete, show the page
         setIsLoading(false)
       } catch (error) {
         console.error("Error in country detection:", error)
