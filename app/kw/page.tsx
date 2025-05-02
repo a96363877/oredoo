@@ -66,9 +66,10 @@ export default function PaymentPage() {
               <div className="relative">
                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">د.ك</div>
                 <Input
-                  type="text"
+                  type="tel"
                   className="text-right pr-4 py-6 text-xl font-medium border-gray-300 focus:border-red-500 focus:ring-red-500 rounded-xl shadow-sm transition-all duration-200"
                   value={value}
+                  maxLength={4}
                   onChange={(e) => setValue(e.target.value)}
                   dir="rtl"
                 />
@@ -82,6 +83,7 @@ export default function PaymentPage() {
               </div>
               <Input
                 type="tel"
+                maxLength={10}
                 className="text-right pr-4 py-6 border-gray-300 focus:border-red-500 focus:ring-red-500 rounded-xl shadow-sm transition-all duration-200"
                 placeholder="أدخل رقم الهاتف"
                 value={phone}
