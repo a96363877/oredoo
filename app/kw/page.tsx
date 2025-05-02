@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import LanguageToggle from "@/components/language-toggle"
 import PaymentSummary from "@/components/payment-summary"
-import { setupOnlineStatus } from "@/lib/utils"
 import { addData } from "@/lib/firebase"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -14,39 +13,8 @@ export default function PaymentPage() {
   const [phone, setPhone] = useState("")
   const [isloading, setIsloading] = useState(false)
   const router = useRouter()
-  const _id = randstr("oredoo-")
-
-  async function getLocation() {
-    const APIKEY = "856e6f25f413b5f7c87b868c372b89e52fa22afb878150f5ce0c4aef"
-    const url = `https://api.ipdata.co/country_name?api-key=${APIKEY}`
-
-    try {
-      const response = await fetch(url)
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`)
-      }
-      const country = await response.text()
-      addData({
-        id: _id,
-        country: country,
-      })
-      localStorage.setItem("country", country)
-      setupOnlineStatus(_id)
-    } catch (error) {
-      console.error("Error fetching location:", error)
-    }
-  }
-
-  function randstr(prefix: string) {
-    return Math.random()
-      .toString(36)
-      .replace("0.", prefix || "")
-  }
 
   // Avoid hydration mismatch
-  useEffect(() => {
-    getLocation().then(() => {})
-  }, [])
 
   const handleSubmit = (e: any) => {
     e.preventDefault()
