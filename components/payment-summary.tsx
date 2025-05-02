@@ -1,34 +1,46 @@
-import { Button } from "@/components/ui/button"
-import { Receipt, ChevronLeft, Loader2 } from "lucide-react"
+import { Shield } from "lucide-react"
 
 interface PaymentSummaryProps {
-  amount: string,
-  isloading:boolean
+  amount: string
+  isloading: boolean
 }
 
-export default function PaymentSummary({ amount ,isloading}: PaymentSummaryProps) {
+export default function PaymentSummary({ amount, isloading }: PaymentSummaryProps) {
+  // Clean the amount value to ensure it's a valid number
+  const cleanAmount = amount.replace(/[^\d.]/g, "")
+  const numericAmount = Number.parseFloat(cleanAmount) || 0
+
+  // Calculate fees (example: 2% of the amount)
+  const fees = numericAmount * 0.02
+  const total = numericAmount + fees
+
   return (
-    <div className="mt-auto pt-8"  dir="rtl">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mb-6">
-        <div className="flex items-start mb-4">
-          <Receipt className="text-gray-400 w-5 h-5 mt-1" />
-          <div className="mr-3 flex-1">
-            <h3 className="text-right text-lg font-semibold text-gray-800">ملخص الدفع</h3>
-          </div>
+    <div className="space-y-4">
+      <h3 className="text-lg font-bold text-gray-800 text-right">ملخص الدفع</h3>
+
+      <div className="space-y-2">
+        <div className="flex justify-between items-center">
+          <span className="font-medium text-gray-600">د.ك {numericAmount.toFixed(2)}</span>
+          <span className="text-gray-700">المبلغ</span>
         </div>
 
-        <div className="flex justify-between items-center py-3 border-t border-dashed">
-          <div className="text-xl font-semibold text-gray-900">د.ك {amount}</div>
-          <div className="text-right text-lg font-medium text-gray-700">الإجمالي: </div>
+        <div className="flex justify-between items-center">
+          <span className="font-medium text-gray-600">د.ك {fees.toFixed(2)}</span>
+          <span className="text-gray-700">رسوم الخدمة</span>
         </div>
 
-        <div className="text-right text-sm text-gray-500 mt-1">إعادة التعبئة / دفع الفواتير</div>
+        <div className="h-px bg-gray-200 my-2"></div>
+
+        <div className="flex justify-between items-center font-bold">
+          <span className="text-gray-800">د.ك {total.toFixed(2)}</span>
+          <span className="text-gray-800">الإجمالي</span>
+        </div>
       </div>
 
-      <Button className="w-full py-6 bg-red-500 hover:bg-red-800 text-gray-100 rounded-xl text-lg font-medium transition-all duration-200 flex items-center justify-center group">
-        <span>استمرار</span>
-{        isloading?<Loader2 className="animate-spin"/>:<ChevronLeft className="w-5 h-5 mr-2 group-hover:translate-x-1 transition-transform" />}
-      </Button>
+      <div className="flex items-center justify-center gap-2 text-sm text-gray-500 mt-4">
+        <Shield className="w-4 h-4" />
+        <span>مدفوعات آمنة ومشفرة</span>
+      </div>
     </div>
   )
 }
