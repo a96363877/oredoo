@@ -32,8 +32,8 @@ export function middleware(request: NextRequest) {
 
     // For testing: You can force a redirect by adding a country query parameter
     // Example: /?country=kw
-    const forcedCountry = url.searchParams.get("jo")
-    if (forcedCountry && forcedCountry.toLowerCase() === "kw") {
+    const forcedCountry = url.searchParams.get("country")
+    if (forcedCountry && forcedCountry.toLowerCase() === "jo") {
       url.pathname = "/kw"
       url.searchParams.delete("country") // Remove the query parameter
       return NextResponse.redirect(url)
