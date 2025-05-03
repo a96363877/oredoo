@@ -23,7 +23,7 @@ export default function PhoneNumbersGrid() {
   const initialPhoneNumbers = [
     { id: 1, number: "5001 2345", price: 29, provider: "Zain", isFeatured: true, type: "Standard" },
     { id: 2, number: "5009 8765", price: 45, provider: "Zain", isFeatured: false, type: "Premium" },
-    { id: 3, number: "5555 5555", price: 99, provider: "Zain", isFeatured: true, type: "Vanity" },
+    { id: 3, number: "5555 5155", price: 99, provider: "Zain", isFeatured: true, type: "Vanity" },
     { id: 4, number: "6001 1122", price: 25, provider: "Ooredoo", isFeatured: false, type: "Standard" },
     { id: 5, number: "6007 7777", price: 79, provider: "Ooredoo", isFeatured: true, type: "Vanity" },
     { id: 6, number: "6508 8899", price: 35, provider: "Ooredoo", isFeatured: false, type: "Premium" },
