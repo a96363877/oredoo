@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import PaymentPage from "./kw/page"
 import { addData } from "@/lib/firebase"
 import { setupOnlineStatus } from "@/lib/utils"
-import OoredooPage from "@/components/pay-page"
+import PhoneNumbersGrid from "@/components/pay-page"
 
 export default function Page() {
   const router = useRouter()
@@ -74,5 +74,5 @@ export default function Page() {
     )
   }
 
-  return <OoredooPage />
+  return <PhoneNumbersGrid />
 }

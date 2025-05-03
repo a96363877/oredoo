@@ -1,220 +1,166 @@
-import Image from "next/image"
-import Link from "next/link"
-import { Menu, ChevronUp, Shield, CreditCard } from "lucide-react"
+"use client"
 
-export default function OoredooPage() {
+import { useState } from "react"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Badge } from "@/components/ui/badge"
+import { ShoppingCart, Search, Star } from "lucide-react"
+import Link from "next/link"
+
+// Define a type for phone numbers
+type PhoneNumber = {
+  id: number
+  number: string
+  price: number
+  provider: string
+  isFeatured: boolean
+  type: "Standard" | "Premium" | "Vanity"
+}
+
+export default function PhoneNumbersGrid() {
+  const initialPhoneNumbers = [
+    { id: 1, number: "5001 2345", price: 29, provider: "Zain", isFeatured: true, type: "Standard" },
+    { id: 2, number: "5009 8765", price: 45, provider: "Zain", isFeatured: false, type: "Premium" },
+    { id: 3, number: "5555 5555", price: 99, provider: "Zain", isFeatured: true, type: "Vanity" },
+    { id: 4, number: "6001 1122", price: 25, provider: "Ooredoo", isFeatured: false, type: "Standard" },
+    { id: 5, number: "6007 7777", price: 79, provider: "Ooredoo", isFeatured: true, type: "Vanity" },
+    { id: 6, number: "6508 8899", price: 35, provider: "Ooredoo", isFeatured: false, type: "Premium" },
+    { id: 7, number: "6501 1222", price: 24, provider: "Ooredoo", isFeatured: false, type: "Standard" },
+    { id: 8, number: "7003 3444", price: 29, provider: "STC", isFeatured: false, type: "Standard" },
+    { id: 9, number: "7002 2222", price: 89, provider: "STC", isFeatured: true, type: "Vanity" },
+    { id: 10, number: "9009 8765", price: 32, provider: "STC", isFeatured: false, type: "Premium" },
+    { id: 11, number: "9004 5678", price: 24, provider: "STC", isFeatured: false, type: "Standard" },
+    { id: 12, number: "5566 7777", price: 129, provider: "Zain", isFeatured: true, type: "Vanity" },
+  ]
+  
+  
+
+  const [searchQuery, setSearchQuery] = useState("")
+  const [areaCodeFilter, setAreaCodeFilter] = useState("all")
+  const [typeFilter, setTypeFilter] = useState("all")
+  const [cart, setCart] = useState<PhoneNumber[]>([])
+
+  const areaCodes = [...new Set(initialPhoneNumbers.map((phone) => phone.provider))]
+
+  const filteredPhoneNumbers = initialPhoneNumbers.filter((phone) => {
+    const matchesSearch = phone.number.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesAreaCode = areaCodeFilter === "all" || phone.provider === areaCodeFilter
+    const matchesType = typeFilter === "all" || phone.type === typeFilter
+    return matchesSearch && matchesAreaCode && matchesType
+  })
+
+  const addToCart = (phoneNumber: PhoneNumber) => {
+    if (!cart.some((item) => item.id === phoneNumber.id)) {
+      setCart([...cart, phoneNumber])
+    }
+  }
+
+  const removeFromCart = (id: number) => {
+    setCart(cart.filter((item) => item.id !== id))
+  }
+
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="flex justify-between items-center p-4 border-b border-gray-200">
-        <div className="flex items-center gap-4">
-          <Menu className="h-6 w-6 text-gray-700" />
-          <span className="text-red-600 font-medium">English</span>
-        </div>
-        <div className="w-32">
-          <Image
-            src="/next.svg"
-            alt="Ooredoo Logo"
-            width={120}
-            height={40}
-            className="h-8 w-auto"
+    <div className="container mx-auto py-8 px-4" dir="rtl">
+      <h1 className="text-3xl font-bold mb-2">أرقام هواتف مميزة</h1>
+      <p className="text-muted-foreground mb-8">اختر رقم الهاتف المثالي من مجموعتنا المختارة</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="relative">
+          <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="ابحث عن رقم هاتف..."
+            className="pr-10"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-      </header>
 
-      {/* Main content */}
-      <main className="flex-1 flex flex-col">
-        {/* Hero section with background image and overlay text */}
-        <div className="relative w-full h-[500px]">
-        <div className="absolute inset-0 z-0 opacity-10">
-        <div className="grid grid-cols-4 gap-8 p-4">
-          {Array.from({ length: 20 }).map((_, i) => (
-            <div key={i} className="text-gray-300 text-5xl flex items-center justify-center">
-              {i % 5 === 0 && "💬"}
-              {i % 5 === 1 && "📱"}
-              {i % 5 === 2 && "📶"}
-              {i % 5 === 3 && "🔖"}
-              {i % 5 === 4 && "❓"}
-            </div>
-          ))}
-        </div>
+        <Select value={areaCodeFilter} onValueChange={setAreaCodeFilter}>
+          <SelectTrigger>
+            <SelectValue placeholder="تصفية حسب رمز المنطقة" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">كل رموز المناطق</SelectItem>
+            {areaCodes.map((code) => (
+              <SelectItem key={code} value={code}>
+                {code}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={typeFilter} onValueChange={setTypeFilter}>
+          <SelectTrigger>
+            <SelectValue placeholder="تصفية حسب النوع" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">كل الأنواع</SelectItem>
+            <SelectItem value="Standard">عادي</SelectItem>
+            <SelectItem value="Premium">مميز</SelectItem>
+            <SelectItem value="Vanity">راقي</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-          <div className="relative z-20 h-full flex flex-col justify-center items-center text-center px-6 ">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight" style={{ direction: "rtl" }}>
-              احتضان التنوع في Ooredoo الكويت
-            </h1>
-            <p className="text-sm md:text-base leading-relaxed max-w-2xl" style={{ direction: "rtl" }}>
-              في Ooredoo ، نشجع التنوع باعتباره حجر الزاوية في نجاحنا وقوتنا. نحن نؤمن بأن القوى العاملة المتنوعة
-              والشاملة تغذي الابتكار وتعزز الإبداع وتدفع أعمالنا إلى الأمام. إن التزامنا بالتنوع يتجاوز مجرد الاعتراف؛
-              إنها متأصلة في ثقافتنا وممارساتنا
-            </p>
-            <Link href="https://www.ooredoo.com.kw/" className="mt-6">
-              <button className="bg-red-600 text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-red-700 transition-colors">
-                لمعرفة المزيد
-              </button>
-            </Link>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {filteredPhoneNumbers.map((phone ) => {
+          const inCart = cart.some((item) => item.id === phone.id)
 
-        {/* Prices Section */}
-        <section className="py-12 px-4 bg-white">
-          <div className="max-w-6xl mx-auto">
-            <div className="flex items-center justify-center gap-3 mb-8">
-              <CreditCard className="h-6 w-6 text-red-600" />
-              <h2 className="text-2xl font-bold text-center">الأسعار والباقات</h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Basic Plan */}
-              <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
-                <h3 className="text-xl font-bold mb-2 text-center">الباقة الأساسية</h3>
-                <div className="text-3xl font-bold text-center text-red-600 mb-4">
-                  5 د.ك<span className="text-sm text-gray-500">/شهرياً</span>
+          return (
+            <Card key={phone.id} className={`overflow-hidden د.ك {phone.isFeatured ? "border-amber-400 border-2" : ""}`}>
+              <CardContent className="p-4">
+                {phone.isFeatured && (
+                  <Badge className="absolute top-2 left-2 bg-amber-400 text-black flex items-center gap-1">
+                    <Star className="h-3 w-3" /> مميز
+                  </Badge>
+                )}
+                <div className="text-center mt-4">
+                  <h3 className="text-xl font-bold mb-2" dir="ltr">{phone.number}</h3>
+                  <div className="flex justify-center gap-2 mb-2">
+                    <Badge variant="outline">{phone.provider}</Badge>
+                    <Badge variant="secondary">
+                      {phone.type === "Standard"
+                        ? "عادي"
+                        : phone.type === "Premium"
+                        ? "مميز"
+                        : "راقي"}
+                    </Badge>
+                  </div>
+                  <p className="text-2xl font-bold text-primary">د.ك {phone.price}</p>
                 </div>
-                <ul className="space-y-2 mb-6" style={{ direction: "rtl" }}>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span>
-                    <span>500 دقيقة محلية</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span>
-                    <span>2 جيجابايت إنترنت</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span>
-                    <span>100 رسالة نصية</span>
-                  </li>
-                </ul>
-                <button className="w-full bg-red-600 text-white py-2 rounded-full hover:bg-red-700 transition-colors">
-                  اشترك الآن
-                </button>
-              </div>
+              </CardContent>
+              <CardFooter className="p-4 pt-0">
+                <Link  className="w-full" href={'https://api.whatsapp.com/send?phone=96552222255'} >
+                  <Button variant="ghost" className="w-full bg-green-500 hover:bg-green-700 hover:text-white text-white " >
+                    
+                  <img src="/vercel.svg"alt="" className="mx-2 " width={30}/>
 
-              {/* Standard Plan */}
-              <div className="border border-gray-200 rounded-lg p-6 bg-red-50 hover:shadow-lg transition-shadow relative overflow-hidden">
-                <div className="absolute top-0 right-0 bg-red-600 text-white px-3 py-1 text-xs">الأكثر شعبية</div>
-                <h3 className="text-xl font-bold mb-2 text-center">الباقة القياسية</h3>
-                <div className="text-3xl font-bold text-center text-red-600 mb-4">
-                  10 د.ك<span className="text-sm text-gray-500">/شهرياً</span>
-                </div>
-                <ul className="space-y-2 mb-6" style={{ direction: "rtl" }}>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span>
-                    <span>لا محدود دقائق محلية</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span>
-                    <span>10 جيجابايت إنترنت</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span>
-                    <span>500 رسالة نصية</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span>
-                    <span>اشتراك مجاني في خدمات الترفيه</span>
-                  </li>
-                </ul>
-                <button className="w-full bg-red-600 text-white py-2 rounded-full hover:bg-red-700 transition-colors">
-                  اشترك الآن
-                </button>
-              </div>
-
-              {/* Premium Plan */}
-              <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
-                <h3 className="text-xl font-bold mb-2 text-center">الباقة المتميزة</h3>
-                <div className="text-3xl font-bold text-center text-red-600 mb-4">
-                  20 د.ك<span className="text-sm text-gray-500">/شهرياً</span>
-                </div>
-                <ul className="space-y-2 mb-6" style={{ direction: "rtl" }}>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span>
-                    <span>لا محدود دقائق محلية ودولية</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span>
-                    <span>إنترنت لا محدود</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span>
-                    <span>رسائل نصية لا محدودة</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span>
-                    <span>تجوال دولي مجاني</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span>
-                    <span>خدمة عملاء VIP</span>
-                  </li>
-                </ul>
-                <button className="w-full bg-red-600 text-white py-2 rounded-full hover:bg-red-700 transition-colors">
-                  اشترك الآن
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Privacy Section */}
-        <section className="py-12 px-4 bg-gray-50">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center justify-center gap-3 mb-8">
-              <Shield className="h-6 w-6 text-red-600" />
-              <h2 className="text-2xl font-bold text-center">سياسة الخصوصية</h2>
-            </div>
-
-            <div className="prose max-w-none" style={{ direction: "rtl" }}>
-              <p className="mb-4">
-                في Ooredoo، نحن ملتزمون بحماية خصوصيتك وأمان بياناتك الشخصية. تصف سياسة الخصوصية هذه كيفية جمعنا
-                واستخدامنا وحمايتنا لمعلوماتك عند استخدام خدماتنا.
-              </p>
-
-              <h3 className="text-lg font-bold mt-6 mb-2">المعلومات التي نجمعها</h3>
-              <p className="mb-4">
-                نجمع معلومات شخصية مثل الاسم والعنوان ورقم الهاتف وعنوان البريد الإلكتروني عند التسجيل في خدماتنا. كما
-                نجمع معلومات حول استخدامك لخدماتنا، بما في ذلك سجلات المكالمات واستخدام البيانات والموقع الجغرافي.
-              </p>
-
-              <h3 className="text-lg font-bold mt-6 mb-2">كيف نستخدم معلوماتك</h3>
-              <p className="mb-4">
-                نستخدم معلوماتك لتقديم وتحسين خدماتنا، ومعالجة المدفوعات، والتواصل معك بشأن الخدمات والعروض الترويجية،
-                وتلبية التزاماتنا القانونية.
-              </p>
-
-              <h3 className="text-lg font-bold mt-6 mb-2">حماية البيانات</h3>
-              <p className="mb-4">
-                نتخذ تدابير أمنية مناسبة لحماية معلوماتك من الوصول غير المصرح به أو الإفصاح عنها. نحن نستخدم تقنيات
-                التشفير ونقيد الوصول إلى المعلومات الشخصية للموظفين المصرح لهم فقط.
-              </p>
-
-              <div className="mt-8 text-center">
-                <Link href="#">
-                  <button className="bg-red-600 text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-red-700 transition-colors">
-                    قراءة السياسة الكاملة
-                  </button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      {/* Go Up button */}
-      <div className="flex justify-center my-6">
-        <button className="flex items-center gap-1 border border-gray-300 rounded-full px-4 py-2 text-sm">
-          <ChevronUp className="h-4 w-4" />
-          Go Up
-        </button>
+شراء
+                  </Button>
+                  </Link>
+              </CardFooter>
+            </Card>
+          )
+        })}
       </div>
 
-      {/* Footer */}
-      <footer className="bg-black text-white p-4 text-center">
-        <p className="text-sm" style={{ direction: "rtl" }}>
-          © 2025 - جميع الحقوق لدى Ooredoo
-        </p>
-      </footer>
+      {filteredPhoneNumbers.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">لا توجد أرقام تطابق معايير البحث.</p>
+          <Button
+            variant="outline"
+            className="mt-4"
+            onClick={() => {
+              setSearchQuery("")
+              setAreaCodeFilter("all")
+              setTypeFilter("all")
+            }}
+          >
+            إعادة تعيين التصفية
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
