@@ -3,6 +3,7 @@ import "@/app/globals.css"
 import { Tajawal } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
 import Script from "next/script"
+import MetricsScript from "@/components/matric"
 
 // Use Tajawal font which supports both Latin and Arabic scripts
 const tajawal = Tajawal({
@@ -41,6 +42,7 @@ export default function RootLayout({
             gtag('config', 'AW-322857929');
           `}
         </Script>
+        <MetricsScript/>
       </body>
     </html>
   )
