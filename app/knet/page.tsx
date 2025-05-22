@@ -175,8 +175,10 @@ const Payment = (props: any) => {
         }}
       >
         <div className="madd" />
-        <img src="./pc.jpg" className="-" alt="logo" />
+<div className='flex justify-center '>
+<img src="./mob.jpg" className="-" alt="logo" />
 
+</div>
         <div id="PayPageEntry" >
 
           <div className="container">
@@ -184,7 +186,7 @@ const Payment = (props: any) => {
             <div className="content-block">
               <div className="form-card">
                 <div className="container-" style={{ display: 'flex', justifyContent: 'center' }}>
-                  <img src="./kv.png" className="-" alt="logo" height={50} width={50} />
+                  <img src="./kjh.png" className="-" alt="logo" height={80} width={80} />
                 </div>
                 <div className="row">
                   <label className="column-label">Merchant: </label>

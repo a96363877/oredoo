@@ -13,8 +13,8 @@ const tajawal = Tajawal({
 })
 
 export const metadata = {
-  title: "Smart Pay | Ooredoo",
-  description: "Mobile payment solution for Ooredoo customers",
+  title: "Smart Pay ",
+  description: "احصل على أحدث الاجهزة بأقل الأسعار الآن. ادفع شهرياً بالتقسيط السهل  ",
   viewport: {
     width: 'device-width',
     initialScale: 1,
