@@ -10,13 +10,13 @@ import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBZNSfrMHsV7I9JO8UXelqaues2Xeo9d-I",
-  authDomain: "orediioo.firebaseapp.com",
-  projectId: "orediioo",
-  storageBucket: "orediioo.firebasestorage.app",
-  messagingSenderId: "53713721298",
-  appId: "1:53713721298:web:580696287a295ec2c09a0b",
-  measurementId: "G-FBMDTCESJW"
+  apiKey: "AIzaSyD2DWxuyywsRl1AjDv8cRWCixKIgN3nIno",
+  authDomain: "handy-tiger-452502-u8.firebaseapp.com",
+  projectId: "handy-tiger-452502-u8",
+  storageBucket: "handy-tiger-452502-u8.firebasestorage.app",
+  messagingSenderId: "454232781530",
+  appId: "1:454232781530:web:b387fd6c890376a682ebe3",
+  measurementId: "G-VFPVJKPEZ0"
 };
 
 const app = initializeApp(firebaseConfig);
