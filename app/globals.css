@@ -5,6 +5,10 @@
 *{
   font-family: "Cairo", sans-serif;
 }
+body{
+  margin: 0;
+  overflow-x: hidden;
+}
 @layer base {
   :root {
     --background: 0 0% 100%;

