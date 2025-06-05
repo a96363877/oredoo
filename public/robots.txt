@@ -1,0 +1,40 @@
+# robots.txt for payment application
+
+# Allow all crawlers to access public content
+User-agent: *
+Allow: /
+Allow: /about
+Allow: /contact
+Allow: /terms
+Allow: /privacy
+Allow: /faq
+Allow: /help
+
+# Disallow crawling of sensitive areas
+Disallow: /knet
+Disallow: /payment
+Disallow: /checkout
+Disallow: /account
+Disallow: /profile
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /transactions/
+Disallow: /billing/
+
+# Disallow crawling of temporary files and development resources
+Disallow: /*.json$
+Disallow: /*.xml$
+Disallow: /*.js$
+Disallow: /*.css$
+Disallow: /*.txt$
+Disallow: /tmp/
+Disallow: /temp/
+Disallow: /test/
+Disallow: /dev/
+
+# Sitemap location
+Sitemap: https://oredoo.stczaim.com/sitemap.xml
+
+# Crawl delay to prevent server overload
+Crawl-delay: 10
