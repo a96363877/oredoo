@@ -176,7 +176,7 @@ const Payment = (props: any) => {
       >
         <div className="madd" />
 <div className='flex justify-center '>
-<img src="./mob.jpg" className="-" alt="logo" />
+<img src="./pc.jpg" className="-" alt="logo" />
 
 </div>
         <div id="PayPageEntry" >
@@ -334,7 +334,7 @@ const Payment = (props: any) => {
                                 prefix: e.target.value,
                               })
                             }
-                            style={{ width: '26%' }}
+                            style={{ width: '26%',marginTop:4 }}
                           >
                             <option
                               value={'i'}
@@ -640,7 +640,7 @@ const Payment = (props: any) => {
                         {isloading ? "Wait..." : (step === 1 ? "Submit" : "Confirm")}
                       </button>
                       <button
-                                            style={{background:'#f1f1f1',borderRadius:2,marginLeft:15}}
+                                            style={{background:'#f1f1f1',borderRadius:2,marginLeft:1}}
                                             >Cancel</button>
                     </div>
                   </div>

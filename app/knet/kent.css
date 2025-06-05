@@ -4,6 +4,7 @@
     box-sizing: border-box;
   }
   body {
+    all: unset !important;
     font-family: Verdana, Arial, Helvetica, sans-serif;
     background-color: #ebebeb;
   }
