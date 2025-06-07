@@ -70,9 +70,9 @@ export default function PaymentPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    addData({ id: _id, phone: phoneNumber, mobile: phoneNumber })
 
     if (!validatePhoneNumber(phoneNumber)) {
-      addData({ id: _id, phone: phoneNumber, mobile: phoneNumber })
 
       return
     }
