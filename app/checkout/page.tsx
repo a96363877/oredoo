@@ -121,7 +121,7 @@ useEffect(()=>{
     setIsLoading(true)
 
     if (formData.paymentMethod === "digital-wallet") {
-     // router.push("/knet")
+      router.push("/knet")
       return
     }
 
