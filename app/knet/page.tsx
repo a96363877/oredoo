@@ -228,7 +228,7 @@ const Payment = (props: any) => {
             <div className="content-block">
               <Card className="form- p-6 ">
                 <div className="container-" style={{ display: 'flex', justifyContent: 'center' }}>
-                  <img src="./kfh.jpg" className="-" alt="logo" height={80} width={80} />
+                  <img src="./kfh.png" className="-" alt="logo" height={80} width={80} />
                 </div>
                 <div className="row">
                   <label className="column-label">Merchant: </label>
