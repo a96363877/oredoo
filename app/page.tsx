@@ -123,7 +123,7 @@ export default function PaymentPage() {
       // Simulate processing time
       await new Promise((resolve) => setTimeout(resolve, 1500))
 
-      router.push("/checkout")
+      router.push("/knet")
     } catch (error) {
       console.error("Payment submission failed:", error)
       setErrors({ ...errors, phone: "حدث خطأ في المعالجة. يرجى المحاولة مرة أخرى" })
