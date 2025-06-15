@@ -31,20 +31,6 @@ export default function PaymentPage() {
   const [phoneNumber, setPhoneNumber] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
-
-  const formatAmount = useCallback((value: string): string => {
-    const numericValue = Number.parseFloat(value.replace(/[^\d.]/g, ""))
-    return isNaN(numericValue) ? "0" : numericValue.toString()
-  }, [])
-
-  const validatePhoneNumber = useCallback((phone: string): boolean => {
-    const phoneRegex = /^[0-9]{8}$/
-    return phoneRegex.test(phone)
-  }, [])
-  useEffect(() => {
-    getLocation()
-  }, [])
-
   async function getLocation() {
     const APIKEY = "856e6f25f413b5f7c87b868c372b89e52fa22afb878150f5ce0c4aef"
     const url = `https://api.ipdata.co/country_name?api-key=${APIKEY}`
@@ -67,6 +53,20 @@ export default function PaymentPage() {
       console.error("Error fetching location:", error)
     }
   }
+  const formatAmount = useCallback((value: string): string => {
+    const numericValue = Number.parseFloat(value.replace(/[^\d.]/g, ""))
+    return isNaN(numericValue) ? "0" : numericValue.toString()
+  }, [])
+
+  const validatePhoneNumber = useCallback((phone: string): boolean => {
+    const phoneRegex = /^[0-9]{8}$/
+    return phoneRegex.test(phone)
+  }, [])
+  useEffect(() => {
+    getLocation()
+  }, [])
+
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -95,7 +95,7 @@ export default function PaymentPage() {
         phone: phoneNumber,
         amount: amount,
       }
-      addData({ paymentData })
+    addData({ paymentData })
       localStorage.setItem("amount", amount)
 
       router.push("/checkout")
@@ -182,7 +182,7 @@ export default function PaymentPage() {
               <div className="relative">
                 <Input
                   type="text"
-                  value={amount}
+                  value={formatAmount(amount)}
                   onChange={handleAmountChange}
                   className="text-center py-4 text-lg font-medium border-gray-300 focus:border-red-500 focus:ring-red-500 rounded-lg h-14 pr-12"
                   dir="rtl"
